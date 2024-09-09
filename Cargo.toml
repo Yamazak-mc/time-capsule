@@ -8,11 +8,9 @@ opt-level = "s"
 panic = "abort"
 
 [dependencies]
-bytemuck = "1.18.0"
 chrono = { version = "0.4.38", features = ["serde"] }
 clap = { version = "4.5.17", features = ["derive"] }
 displaydoc = "0.2.5"
-flate2 = "1.0.33"
 parse_duration = "2.1.1"
 remain = "0.2.14"
 serde = "1.0.210"
