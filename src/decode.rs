@@ -9,20 +9,27 @@ use std::{
 };
 
 // Decodes a time-capsule file.
-pub fn decode(file: impl AsRef<Path>) -> Result<(), DecodeError> {
-    Decoder::new(file)?.file_format_checked()?.decode()
+pub fn decode(file: impl AsRef<Path>, remove_file: bool) -> Result<(), DecodeError> {
+    match Decoder::new(&file)?.file_format_checked()?.decode() {
+        Ok(_) => {
+            if remove_file {
+                fs::remove_file(file).expect("should be able to remove file");
+            }
+            Ok(())
+        }
+        Err(e) => Err(e),
+    }
 }
 
 /// Decodes all files in the directory.
 ///
 /// This function does not decode files in the sub directories.
-pub fn decode_all(directory: impl AsRef<Path>) -> Result<(), DecodeError> {
+pub fn decode_all(directory: impl AsRef<Path>, remove_files: bool) -> Result<(), DecodeError> {
     for entry in fs::read_dir(&directory)? {
         let path = entry?.path();
         if path.is_file() {
-            match decode(path) {
-                Ok(_) => (),
-                Err(err) => println!("{}", err),
+            if let Err(err) = decode(path, remove_files) {
+                println!("{}", err);
             }
         }
     }
