@@ -8,23 +8,42 @@ use std::{
 };
 
 /// Encodes a file to a time-capsule format.
-pub fn encode(file: impl AsRef<Path>, duration: &str) -> Result<(), EncodeError> {
+pub fn encode(
+    file: impl AsRef<Path>,
+    duration: &str,
+    remove_file: bool,
+) -> Result<(), EncodeError> {
     let time = duration_str_to_time(duration)?;
-    encode_impl(file, &time)
+    match encode_impl(&file, &time) {
+        Ok(_) => {
+            if remove_file {
+                fs::remove_file(file).expect("should be able to remove file");
+            }
+            Ok(())
+        }
+        Err(e) => Err(e),
+    }
 }
 
 /// Encodes all files in the directory.
 ///
 /// This function does not encode files in the sub directories.
-pub fn encode_all(directory: impl AsRef<Path>, duration: &str) -> Result<(), EncodeError> {
+pub fn encode_all(
+    directory: impl AsRef<Path>,
+    duration: &str,
+    remove_files: bool,
+) -> Result<(), EncodeError> {
     let time = duration_str_to_time(duration)?;
 
     for entry in fs::read_dir(&directory)? {
         let path = entry?.path();
         if path.is_file() {
-            match encode_impl(path, &time) {
-                Ok(_) => (),
+            match encode_impl(&path, &time) {
+                Ok(_) if remove_files => {
+                    fs::remove_file(path).expect("should be able to remove file");
+                }
                 Err(err) => println!("{}", err),
+                _ => (),
             }
         }
     }
