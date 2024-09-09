@@ -58,7 +58,7 @@ pub enum EncodeError {
     ParseDuration(#[from] parse_duration::parse::Error),
 }
 
-fn duration_str_to_time(duration: &str) -> Result<DateTime<Local>, EncodeError> {
+pub fn duration_str_to_time(duration: &str) -> Result<DateTime<Local>, EncodeError> {
     let duration = Duration::from_std(parse_duration::parse(duration)?)?;
 
     let Some(time) = Local::now().checked_add_signed(duration) else {

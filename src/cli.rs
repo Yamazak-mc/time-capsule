@@ -2,7 +2,7 @@ use std::{error::Error, path::PathBuf};
 
 use clap::{Parser, Subcommand};
 
-use time_capsule::{decode, decode_all, encode, encode_all};
+use time_capsule::{decode, decode_all, encode, encode::duration_str_to_time, encode_all};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -29,6 +29,9 @@ pub enum Commands {
         directory: PathBuf,
         duration: String,
     },
+
+    /// Tests a duration string input
+    TestDuration { duration: String },
 }
 
 impl Commands {
@@ -42,6 +45,10 @@ impl Commands {
             } => encode_all(directory, duration)?,
             Self::Decode { file } => decode(file)?,
             Self::DecodeAll { directory } => decode_all(directory)?,
+            Self::TestDuration { duration } => {
+                println!("Input    : {}", duration);
+                println!("Timestamp: {}", duration_str_to_time(duration)?);
+            }
         };
         Ok(())
     }
